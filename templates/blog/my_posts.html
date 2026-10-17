@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}My posts | Django Blog{% endblock %}
+
+{% block content %}
+  <h1>My posts</h1>
+  <p><a class="btn" href="{% url 'blog:post_create' %}">New post</a></p>
+
+  {% for post in posts %}
+    <article class="card">
+      <h2>
+        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        {% if not post.is_published %}<span class="badge">Draft</span>{% endif %}
+      </h2>
+      <p class="meta">
+        {{ post.created_at|date:"d M Y" }}
+        {% if post.category %}&middot; {{ post.category.name }}{% endif %}
+      </p>
+      <p class="actions">
+        <a class="btn btn-small" href="{% url 'blog:post_update' post.slug %}">Edit</a>
+        <a class="btn btn-small btn-danger" href="{% url 'blog:post_delete' post.slug %}">Delete</a>
+      </p>
+    </article>
+  {% empty %}
+    <p class="muted">You haven't written anything yet.</p>
+  {% endfor %}
+
+  {% include "blog/_pagination.html" %}
+{% endblock %}

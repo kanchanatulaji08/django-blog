@@ -1,0 +1,67 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Django Blog{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="{% url 'blog:post_list' %}">Django Blog</a>
+
+      <form class="search" action="{% url 'blog:post_list' %}" method="get">
+        <input type="search" name="q" placeholder="Search posts" value="{{ query|default:'' }}" aria-label="Search posts">
+        <button type="submit" class="btn btn-small">Search</button>
+      </form>
+
+      <nav class="nav-links">
+        {% if user.is_authenticated %}
+          <a href="{% url 'blog:post_create' %}">New post</a>
+          <a href="{% url 'blog:my_posts' %}">My posts</a>
+          <span class="muted">Hi, {{ user.username }}</span>
+          <form method="post" action="{% url 'accounts:logout' %}" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="link-button">Log out</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Log in</a>
+          <a href="{% url 'accounts:register' %}">Sign up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="container layout">
+    <main>
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <aside class="sidebar">
+      <h3>Categories</h3>
+      {% if sidebar_categories %}
+        <ul>
+          {% for cat in sidebar_categories %}
+            <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a> <span class="muted">({{ cat.post_count }})</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No categories yet. Add some in the admin panel.</p>
+      {% endif %}
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container muted">Built with Django</div>
+  </footer>
+</body>
+</html>

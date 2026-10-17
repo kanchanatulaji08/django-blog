@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{% if category %}{{ category.name }}{% elif query %}Search: {{ query }}{% else %}Home{% endif %} | Django Blog{% endblock %}
+
+{% block content %}
+  {% if category %}
+    <h1>Category: {{ category.name }}</h1>
+  {% elif query %}
+    <h1>Search results for &ldquo;{{ query }}&rdquo;</h1>
+  {% else %}
+    <h1>Latest posts</h1>
+  {% endif %}
+
+  {% for post in posts %}
+    <article class="card">
+      <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+      <p class="meta">
+        By {{ post.author.username }} on {{ post.created_at|date:"d M Y" }}
+        {% if post.category %}in <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+        &middot; {{ post.comment_count }} comment{{ post.comment_count|pluralize }}
+      </p>
+      <p>{{ post.body|truncatewords:40 }}</p>
+      <a href="{{ post.get_absolute_url }}">Read more &rarr;</a>
+    </article>
+  {% empty %}
+    <p class="muted">No posts found.</p>
+    {% if user.is_authenticated %}
+      <p><a class="btn" href="{% url 'blog:post_create' %}">Write the first post</a></p>
+    {% endif %}
+  {% endfor %}
+
+  {% include "blog/_pagination.html" %}
+{% endblock %}

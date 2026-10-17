@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | Django Blog{% endblock %}
+
+{% block content %}
+  <article class="card">
+    <h1>{{ post.title }}{% if not post.is_published %} <span class="badge">Draft</span>{% endif %}</h1>
+    <p class="meta">
+      By {{ post.author.username }} on {{ post.created_at|date:"d M Y" }}
+      {% if post.category %}in <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+    </p>
+
+    <div class="post-body">{{ post.body|linebreaks }}</div>
+
+    {% if user == post.author %}
+      <p class="actions">
+        <a class="btn btn-small" href="{% url 'blog:post_update' post.slug %}">Edit</a>
+        <a class="btn btn-small btn-danger" href="{% url 'blog:post_delete' post.slug %}">Delete</a>
+      </p>
+    {% endif %}
+  </article>
+
+  <section class="comments">
+    <h2>Comments ({{ comments|length }})</h2>
+
+    {% for comment in comments %}
+      <div class="comment">
+        <p class="meta">
+          <strong>{{ comment.author.username }}</strong> &middot; {{ comment.created_at|date:"d M Y, H:i" }}
+        </p>
+        <p>{{ comment.body|linebreaksbr }}</p>
+        {% if user.id == comment.author_id or user.id == post.author_id %}
+          <form method="post" action="{% url 'blog:comment_delete' comment.pk %}" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="link-button danger">Delete comment</button>
+          </form>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="muted">No comments yet. Be the first to comment.</p>
+    {% endfor %}
+
+    {% if post.is_published %}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'blog:comment_create' post.slug %}" class="form">
+          {% csrf_token %}
+          {{ comment_form.as_p }}
+          <button type="submit" class="btn">Post comment</button>
+        </form>
+      {% else %}
+        <p><a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Log in</a> to leave a comment.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+{% endblock %}

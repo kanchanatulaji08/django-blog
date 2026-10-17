@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Log in | Django Blog{% endblock %}
+
+{% block content %}
+  <h1>Log in</h1>
+  <form method="post" class="form card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn">Log in</button>
+  </form>
+  <p>New here? <a href="{% url 'accounts:register' %}">Create an account</a>.</p>
+{% endblock %}

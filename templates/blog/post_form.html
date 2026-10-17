@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit post{% else %}New post{% endif %} | Django Blog{% endblock %}
+
+{% block content %}
+  <h1>{% if object %}Edit post{% else %}New post{% endif %}</h1>
+
+  <form method="post" class="form card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Save</button>
+    <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'blog:post_list' %}{% endif %}">Cancel</a>
+  </form>
+{% endblock %}
